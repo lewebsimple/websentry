@@ -28,6 +28,11 @@
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js",
       "default": "./dist/core/index.js"
+    },
+    "./adapters/cloudflare": {
+      "types": "./dist/adapters/cloudflare/index.d.ts",
+      "import": "./dist/adapters/cloudflare/index.js",
+      "default": "./dist/adapters/cloudflare/index.js"
     }
   },
   "scripts": {
