@@ -2,8 +2,16 @@
   "name": "websentry",
   "version": "0.0.0",
   "description": "WebSentry is a declarative web crawling and extraction framework.",
+  "homepage": "https://github.com/lewebsimple/websentry#readme",
+  "bugs": {
+    "url": "https://github.com/lewebsimple/websentry/issues"
+  },
   "license": "AGPL-3.0-only",
   "author": "Pascal Martineau <pascal@lewebsimple.ca>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lewebsimple/websentry.git"
+  },
   "files": [
     "dist"
   ],
@@ -28,10 +36,12 @@
     "build:types": "tsc",
     "format": "oxfmt .",
     "lint": "oxlint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "oxlint . && pnpm build && changelogen --noAuthors --release --push && pnpm publish --access public"
   },
   "devDependencies": {
     "@types/node": "^25.2.1",
+    "changelogen": "^0.6.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.28.0",
@@ -45,5 +55,10 @@
       "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
-  "packageManager": "pnpm@10.28.0"
+  "packageManager": "pnpm@10.28.0",
+  "changelog": {
+    "types": {
+      "chore": false
+    }
+  }
 }
