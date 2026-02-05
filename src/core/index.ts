@@ -1,5 +1,5 @@
 export class WebSentry {
   hello() {
-    return 'Hello from WebSentry!';
+    return "Hello from WebSentry!";
   }
 }

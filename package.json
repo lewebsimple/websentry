@@ -2,35 +2,39 @@
   "name": "websentry",
   "version": "0.0.0",
   "description": "WebSentry is a declarative web crawling and extraction framework.",
-  "author": "Pascal Martineau <pascal@lewebsimple.ca>",
   "license": "AGPL-3.0-only",
+  "author": "Pascal Martineau <pascal@lewebsimple.ca>",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
   "exports": {
     ".": {
-      "default": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
+      "default": "./dist/core/index.js"
     },
     "./core": {
-      "default": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
+      "default": "./dist/core/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "pnpm --sequential /build:.*/",
     "build:rolldown": "rolldown --config ./rolldown.config.ts",
-    "build:types": "tsc"
+    "build:types": "tsc",
+    "format": "oxfmt .",
+    "lint": "oxlint . --fix"
   },
-  "packageManager": "pnpm@10.28.0",
   "devDependencies": {
     "@types/node": "^25.2.1",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
     "rolldown": "1.0.0-rc.3",
     "typescript": "^5.9.3"
-  }
+  },
+  "packageManager": "pnpm@10.28.0"
 }

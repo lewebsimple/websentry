@@ -1,4 +1,4 @@
-import { defineConfig } from 'rolldown';
+import { defineConfig } from "rolldown";
 
 export default defineConfig({
   input: {
@@ -7,7 +7,7 @@ export default defineConfig({
   output: {
     cleanDir: true,
     entryFileNames: "[name]/index.js",
-    sourcemap: true
+    sourcemap: true,
   },
-  platform: 'node',
+  platform: "node",
 });
