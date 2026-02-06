@@ -1,11 +1,14 @@
 import * as z from "zod";
 
+import { documentHandlerNames } from "./DocumentHandler";
+
 /**
  * Fetch step
  */
 
 export const fetchStepSchema = z.object({
   action: z.literal("fetch"),
+  handler: z.enum(documentHandlerNames),
 });
 export type FetchStep = z.infer<typeof fetchStepSchema>;
 

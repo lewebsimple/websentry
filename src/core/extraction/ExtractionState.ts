@@ -1,4 +1,4 @@
-import { ContentView } from "./ContentView";
+import { ContentView } from "./DocumentHandler";
 import { ExtractJob } from "./ExtractJob";
 import { Signal } from "./Signals";
 

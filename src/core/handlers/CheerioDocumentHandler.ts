@@ -1,9 +1,9 @@
 import * as cheerio from "cheerio";
 import type { AnyNode } from "domhandler";
 
-import { HtmlContentView, NodeRef } from "../core/extraction/ContentView";
+import { BaseDocumentHandler, NodeRef } from "../extraction/DocumentHandler";
 
-export class CheerioHtmlContentView implements HtmlContentView {
+export class CheerioDocumentHandler implements BaseDocumentHandler {
   readonly type = "html" as const;
   readonly capabilities = ["select", "extract.text", "extract.html"] as const;
 
