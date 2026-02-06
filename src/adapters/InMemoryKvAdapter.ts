@@ -1,4 +1,4 @@
-import { KVAdapter } from "../../core/runtime/KvAdapter";
+import { KVAdapter } from "../core/runtime/KvAdapter";
 
 type Entry = {
   value: unknown;

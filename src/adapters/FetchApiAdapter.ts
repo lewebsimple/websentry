@@ -1,4 +1,4 @@
-import { FetchAdapter, FetchRequest, FetchResponse } from "../../core/runtime/FetchAdapter";
+import { FetchAdapter, FetchRequest, FetchResponse } from "../core/runtime/FetchAdapter";
 
 export class FetchApiAdapter implements FetchAdapter {
   async fetch(request: FetchRequest): Promise<FetchResponse> {
