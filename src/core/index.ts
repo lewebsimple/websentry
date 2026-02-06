@@ -1,5 +1,1 @@
-export class WebSentry {
-  hello() {
-    return "Hello from WebSentry!";
-  }
-}
+export { WebSentry } from "./WebSentry";
