@@ -1,13 +1,6 @@
-import { ExtractedItem } from "./extraction/ExtractedItem";
-import { ExtractPlan, extractPlanSchema } from "./extraction/ExtractPlan";
+import { Item } from "./Item";
 
 export type Source<TEntity> = {
-  extract: ExtractPlan;
-  normalize: (item: ExtractedItem) => TEntity;
+  normalize: (item: Item) => TEntity;
   process: (entity: TEntity) => void | Promise<void>;
 };
-
-export function defineSource<TEntity>(source: Source<TEntity>): Source<TEntity> {
-  extractPlanSchema.parse(source.extract);
-  return source;
-}

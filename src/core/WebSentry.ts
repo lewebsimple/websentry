@@ -1,22 +1,37 @@
-import { ExtractJob } from "./extraction/ExtractJob";
-import type { WebSentryRuntime } from "./runtime";
+import { FetchAdapter } from "../adapters/fetch/FetchAdapter";
+import { KvAdapter } from "../adapters/kv/KvAdapter";
+import { QueueAdapter } from "../adapters/queue/QueueAdapter";
+
+import { defaultHandlerRegistry as defaultDrivers } from "./drivers";
 import { Source } from "./Source";
 
+export type WebSentryRuntime = {
+  fetch: FetchAdapter;
+  queue: QueueAdapter<Task>;
+  kv?: KvAdapter;
+};
+
+type WebSentryOptions<TRuntime> = {
+  runtime: TRuntime & {
+    fetch: FetchAdapter;
+    queue: QueueAdapter<Task>;
+    kv?: KvAdapter;
+  };
+  sources: Record<string, Source<unknown>>;
+  drivers?: Record<string, Driver>;
+};
+
 export class WebSentry<TRuntime extends WebSentryRuntime> {
-  readonly runtime: TRuntime;
-  readonly sources: Record<string, Source<unknown>>;
+  private readonly sources: Record<string, Source<unknown>>;
+  private readonly runtime: WebSentryOptions<TRuntime>["runtime"];
+  private readonly drivers: Record<string, Driver>;
 
-  constructor(options: { runtime: TRuntime; sources: Record<string, Source<unknown>> }) {
-    this.runtime = options.runtime;
+  constructor(options: WebSentryOptions<TRuntime>) {
     this.sources = options.sources;
-  }
-
-  async handle(job: ExtractJob): Promise<void> {
-    // validate job
-    // build ExtractionState
-    // execute ExtractSteps for job.role
-    // emit new jobs (via callback or return value)
-    // commit items
-    // normalize + process
+    this.runtime = options.runtime;
+    this.drivers = {
+      ...defaultDrivers,
+      ...options.drivers,
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { QueueAdapter } from "../core/runtime/QueueAdapter";
+import { QueueAdapter } from "./QueueAdapter";
 
 export class InMemoryQueueAdapter<T> implements QueueAdapter<T> {
   private items: T[] = [];

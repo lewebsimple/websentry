@@ -19,3 +19,9 @@ export type HtmlSignal = z.infer<typeof htmlSignalSchema>;
 export const signalSchema = z.discriminatedUnion("type", [textSignalSchema, htmlSignalSchema]);
 export type Signal = z.infer<typeof signalSchema>;
 export type SignalType = Signal["type"];
+
+export const itemSchema = z.object({
+  uri: z.url(),
+  signals: z.record(z.string(), signalSchema),
+});
+export type Item = z.infer<typeof itemSchema>;

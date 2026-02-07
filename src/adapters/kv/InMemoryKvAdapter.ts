@@ -1,11 +1,11 @@
-import { KVAdapter } from "../core/runtime/KvAdapter";
+import { KvAdapter } from "./KvAdapter";
 
 type Entry = {
   value: unknown;
   expiresAt?: number;
 };
 
-export class InMemoryKVAdapter implements KVAdapter {
+export class InMemoryKvAdapter implements KvAdapter {
   private store = new Map<string, Entry>();
 
   async get<T = unknown>(key: string): Promise<T | null> {
