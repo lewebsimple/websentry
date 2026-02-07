@@ -1,13 +1,17 @@
 import { QueueAdapter } from "./QueueAdapter";
 
-export class InMemoryQueueAdapter<T> implements QueueAdapter<T> {
-  private items: T[] = [];
+export class InMemoryQueueAdapter<TJob> implements QueueAdapter<TJob> {
+  private items: TJob[] = [];
 
-  async enqueue(message: T): Promise<void> {
-    this.items.push(message);
+  async enqueue(job: TJob): Promise<void> {
+    this.items.push(job);
   }
 
-  async dequeue(): Promise<T | null> {
+  async enqueueMany(jobs: TJob[]): Promise<void> {
+    this.items.push(...jobs);
+  }
+
+  async dequeue(): Promise<TJob | null> {
     return this.items.shift() ?? null;
   }
 }
