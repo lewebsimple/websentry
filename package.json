@@ -1,0 +1,19 @@
+{
+  "name": "websentry",
+  "version": "0.1.0",
+  "description": "WebSentry is a declarative web crawling and extraction framework.",
+  "homepage": "https://github.com/lewebsimple/websentry#readme",
+  "bugs": {
+    "url": "https://github.com/lewebsimple/websentry/issues"
+  },
+  "license": "AGPL-3.0-only",
+  "author": "Pascal Martineau <pascal@lewebsimple.ca>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lewebsimple/websentry.git"
+  },
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {},
+  "packageManager": "pnpm@10.30.1"
+}
