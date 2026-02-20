@@ -25,16 +25,19 @@
       "import": "./dist/adapters/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "pnpm --sequential /build:.*/",
-    "build:rolldown": "rolldown --config ./rolldown.config.ts",
-    "build:types": "tsc",
+    "build": "rolldown --config ./rolldown.config.ts && tsc",
     "format": "oxfmt .",
     "lint": "oxlint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "pnpm lint && pnpm build && changelogen && pnpm publish"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",
+    "changelogen": "^0.6.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.34.0",
@@ -48,5 +51,13 @@
       "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
-  "packageManager": "pnpm@10.30.1"
+  "packageManager": "pnpm@10.30.1",
+  "changelog": {
+    "noAuthors": true,
+    "release": true,
+    "push": true,
+    "types": {
+      "chore": false
+    }
+  }
 }
