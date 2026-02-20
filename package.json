@@ -17,23 +17,25 @@
   "types": "./dist/core/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
     },
     "./adapters": {
-      "import": "./dist/adapters/index.js",
-      "types": "./dist/adapters/index.d.ts"
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.js"
     }
   },
   "scripts": {
     "build": "pnpm --sequential /build:.*/",
     "build:rolldown": "rolldown --config ./rolldown.config.ts",
-    "build:types": "tsc"
+    "build:types": "tsc",
+    "format": "oxfmt .",
+    "lint": "oxlint . --fix"
   },
-  "dependencies": {},
-  "peerDependencies": {},
   "devDependencies": {
     "@types/node": "^25.3.0",
+    "oxfmt": "^0.34.0",
+    "oxlint": "^1.49.0",
     "rolldown": "1.0.0-rc.5",
     "typescript": "^5.9.3"
   },
