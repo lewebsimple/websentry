@@ -30,14 +30,23 @@
     "build:rolldown": "rolldown --config ./rolldown.config.ts",
     "build:types": "tsc",
     "format": "oxfmt .",
-    "lint": "oxlint . --fix"
+    "lint": "oxlint . --fix",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "oxfmt": "^0.34.0",
     "oxlint": "^1.49.0",
     "rolldown": "1.0.0-rc.5",
     "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "*.{ts,json,md}": [
+      "oxlint --fix",
+      "oxfmt --no-error-on-unmatched-pattern"
+    ]
   },
   "packageManager": "pnpm@10.30.1"
 }
