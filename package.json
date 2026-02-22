@@ -12,6 +12,11 @@
     "type": "git",
     "url": "https://github.com/lewebsimple/websentry.git"
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "README.md"
+  ],
   "type": "module",
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
