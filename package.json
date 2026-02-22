@@ -40,6 +40,9 @@
     "prepare": "husky",
     "release": "pnpm lint && pnpm build && changelogen --release --push && pnpm publish"
   },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
   "devDependencies": {
     "@types/node": "^25.3.0",
     "changelogen": "^0.6.2",
