@@ -1,6 +1,12 @@
-import { ConsoleLogAdapter, type LogAdapter } from "../adapters";
+import {
+  ConsoleLogAdapter,
+  NativeFetchAdapter,
+  type FetchAdapter,
+  type LogAdapter,
+} from "../adapters";
 
 export type WebSentryAdapters = {
+  fetch: FetchAdapter;
   log: LogAdapter;
 };
 
@@ -17,6 +23,7 @@ export class WebSentry {
 
   private resolveAdapters(adapters?: Partial<WebSentryAdapters>): WebSentryAdapters {
     return {
+      fetch: adapters?.fetch ?? new NativeFetchAdapter(),
       log: adapters?.log ?? new ConsoleLogAdapter(),
     };
   }
