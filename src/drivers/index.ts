@@ -4,4 +4,4 @@ export const drivers = {
   cheerio: CheerioDriver,
 } as const;
 
-export type DriverName = keyof typeof drivers;
+export type Drivers = typeof drivers;
