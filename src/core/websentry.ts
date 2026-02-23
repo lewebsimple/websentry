@@ -7,6 +7,7 @@ import {
   type QueueAdapter,
 } from "../adapters";
 import { drivers } from "../drivers";
+import { RuntimeSource, Source, sourceSchema } from "./source";
 import { Task } from "./task";
 
 export type WebSentryAdapters = {
@@ -22,8 +23,9 @@ export type WebSentryOptions = {
 export class WebSentry {
   private readonly adapters: WebSentryAdapters;
   static readonly drivers = drivers;
+  private readonly sources = new Map<string, RuntimeSource>();
 
-  constructor(options: WebSentryOptions = {}) {
+  constructor(options: WebSentryOptions) {
     this.adapters = this.resolveAdapters(options.adapters);
   }
 
@@ -33,5 +35,27 @@ export class WebSentry {
       log: adapters?.log ?? new ConsoleLogAdapter(),
       taskQueue: adapters?.taskQueue ?? new InMemoryQueueAdapter<Task>(),
     };
+  }
+
+  registerSource<TEntity>(name: string, source: Source<TEntity>) {
+    const { normalize, process, ...definition } = source;
+    const { seeds, pipelines } = sourceSchema.parse(definition);
+    for (const seed of seeds) {
+      if (!(seed.pipeline in pipelines)) {
+        throw new Error(`Seed references unknown pipeline "${seed.pipeline}" in source "${name}"`);
+      }
+    }
+    const tasks: Task[] = seeds.map((seed) => ({ ...seed, source: name }));
+    this.sources.set(name, {
+      name,
+      pipelines,
+      tasks,
+      normalize,
+      process,
+    } as RuntimeSource);
+  }
+
+  unregisterSource(name: string) {
+    this.sources.delete(name);
   }
 }

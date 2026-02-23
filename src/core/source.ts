@@ -1,6 +1,25 @@
 import * as z from "zod";
-import { taskSchema } from "./task";
+import { Item } from "./item";
+import { Pipeline, pipelineSchema } from "./pipeline";
+import { Task, taskSchema } from "./task";
+
+export const seedSchema = taskSchema.omit({ source: true });
+export type Seed = z.infer<typeof seedSchema>;
 
 export const sourceSchema = z.object({
-  seeds: z.array(taskSchema),
+  pipelines: z.record(z.string(), pipelineSchema),
+  seeds: z.array(seedSchema),
 });
+
+export type Source<TEntity> = z.infer<typeof sourceSchema> & {
+  normalize: (item: Item) => TEntity;
+  process: (entity: TEntity) => void | Promise<void>;
+};
+
+export type RuntimeSource = {
+  name: string;
+  pipelines: Record<string, Pipeline>;
+  tasks: Task[];
+  normalize: (item: Item) => unknown;
+  process: (entity: unknown) => void | Promise<void>;
+};
