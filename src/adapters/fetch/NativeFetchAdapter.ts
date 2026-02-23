@@ -1,9 +1,5 @@
-import {
-  BaseFetchAdapter,
-  FetchAdapterOptions,
-  FetchRequest,
-  FetchResponse,
-} from "./BaseFetchAdapter";
+import { BaseFetchAdapter } from "./BaseFetchAdapter";
+import type { FetchAdapterOptions, FetchRequest, FetchResponse } from "./contract";
 
 type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 

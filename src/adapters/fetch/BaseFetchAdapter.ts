@@ -1,27 +1,5 @@
 import { normalizeHeaders } from "../../utils/normalize-headers";
-
-export type FetchRequest = {
-  url: string;
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  headers?: Record<string, string>;
-  body?: string;
-  signal?: AbortSignal;
-};
-
-export type FetchResponse = {
-  url: string;
-  status: number;
-  headers: Record<string, string>;
-  body: string;
-};
-
-export interface FetchAdapter {
-  fetch(request: FetchRequest): Promise<FetchResponse>;
-}
-
-export interface FetchAdapterOptions {
-  headers?: Record<string, string>;
-}
+import type { FetchAdapter, FetchAdapterOptions, FetchRequest, FetchResponse } from "./contract";
 
 export abstract class BaseFetchAdapter implements FetchAdapter {
   protected readonly headers: Record<string, string>;
