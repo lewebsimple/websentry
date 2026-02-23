@@ -1,6 +1,6 @@
 import { DriverOp, StepOf, StepValueOf } from "../steps";
 import { WebSentryAdapters } from "../core";
-import { DriverName } from "../core/identifiers";
+import { DriverName } from "../core/driver-name";
 import { Driver, DriverContext, DriverHandlers } from "./contract";
 
 export abstract class BaseDriver<

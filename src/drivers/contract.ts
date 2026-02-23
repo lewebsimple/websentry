@@ -1,4 +1,4 @@
-import { DriverName } from "../core/identifiers";
+import { DriverName } from "../core/driver-name";
 import { DriverOp, StepOf, StepValueOf } from "../steps";
 
 // Driver context contract.
