@@ -4,6 +4,7 @@ import {
   type FetchAdapter,
   type LogAdapter,
 } from "../adapters";
+import { drivers } from "../drivers";
 
 export type WebSentryAdapters = {
   fetch: FetchAdapter;
@@ -16,6 +17,7 @@ export type WebSentryOptions = {
 
 export class WebSentry {
   private readonly adapters: WebSentryAdapters;
+  static readonly drivers = drivers;
 
   constructor(options: WebSentryOptions = {}) {
     this.adapters = this.resolveAdapters(options.adapters);

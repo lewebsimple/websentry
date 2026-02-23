@@ -41,6 +41,7 @@
     "release": "pnpm lint && pnpm build && changelogen --release --push && pnpm publish"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -49,7 +50,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.34.0",
-    "oxlint": "^1.49.0",
+    "oxlint": "^1.50.0",
     "rolldown": "1.0.0-rc.5",
     "typescript": "^5.9.3"
   },

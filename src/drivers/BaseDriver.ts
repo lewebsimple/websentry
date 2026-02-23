@@ -8,12 +8,12 @@ export interface DriverContext<TName extends DriverName = DriverName> {
 }
 
 // Driver handlers contract, i.e. mapping supported operations to their execution functions.
-type DriverHandlers<TOps extends readonly DriverOp[], TContext> = {
+export type DriverHandlers<TOps extends readonly DriverOp[], TContext> = {
   [TOp in TOps[number]]: (ctx: TContext, step: StepOf<TOp>) => Promise<StepValueOf<TOp>>;
 };
 
 // Driver contract.
-export interface Driver<
+interface Driver<
   TName extends DriverName,
   TOps extends readonly DriverOp[],
   TContext extends DriverContext<TName>,
