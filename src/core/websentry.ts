@@ -1,14 +1,18 @@
 import {
   ConsoleLogAdapter,
   NativeFetchAdapter,
+  InMemoryQueueAdapter,
   type FetchAdapter,
   type LogAdapter,
+  type QueueAdapter,
 } from "../adapters";
 import { drivers } from "../drivers";
+import { Task } from "./task";
 
 export type WebSentryAdapters = {
   fetch: FetchAdapter;
   log: LogAdapter;
+  taskQueue: QueueAdapter<Task>;
 };
 
 export type WebSentryOptions = {
@@ -27,6 +31,7 @@ export class WebSentry {
     return {
       fetch: adapters?.fetch ?? new NativeFetchAdapter(),
       log: adapters?.log ?? new ConsoleLogAdapter(),
+      taskQueue: adapters?.taskQueue ?? new InMemoryQueueAdapter<Task>(),
     };
   }
 }

@@ -1,1 +1,1 @@
-export { WebSentry, type WebSentryAdapters, type WebSentryOptions } from "./WebSentry";
+export { WebSentry, type WebSentryAdapters, type WebSentryOptions } from "./websentry";
