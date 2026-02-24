@@ -35,6 +35,9 @@ export class Executor {
     if (!source) {
       throw new Error(`Unknown source "${task.source}"`);
     }
+    if (source.state !== "running") {
+      return;
+    }
 
     // Resolve pipeline from the source configuration.
     const pipeline = source.pipelines[task.pipeline];
@@ -111,6 +114,9 @@ export class Executor {
       }
     },
     enqueue: async (step, state, task) => {
+      const source = this.sources.get(task.source);
+      if (!source || source.state !== "running") return;
+
       const urls = state.item.data[step.from];
       if (!Array.isArray(urls)) {
         throw new Error(`Expected an array of URLs in "${step.from}" but got ${typeof urls}`);

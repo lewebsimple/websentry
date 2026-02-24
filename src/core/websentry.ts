@@ -88,10 +88,6 @@ export class WebSentry {
     this.sources.setState(name, "running");
   }
 
-  stopSource(name: string) {
-    this.sources.setState(name, "stopped");
-  }
-
   async handleJob(job: QueueJob<Task>): Promise<QueueJobResult> {
     try {
       await this.executor.executeTask(job.payload);

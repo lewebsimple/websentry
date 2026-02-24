@@ -19,7 +19,7 @@ export type Source<TEntity> = z.infer<typeof sourceSchema> & {
   process: (entity: TEntity) => void | Promise<void>;
 };
 
-export type SourceState = "running" | "paused" | "stopped";
+export type SourceState = "running" | "paused";
 
 export type RuntimeSource = {
   name: string;
