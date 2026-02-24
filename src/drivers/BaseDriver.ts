@@ -1,7 +1,8 @@
 import type { WebSentryAdapters } from "../core";
+import { throwIfAborted } from "../core/abort";
 import type { DriverOp, StepOf, StepValueOf } from "../steps";
 
-import type { Driver, DriverContext, DriverHandlers } from "./contract";
+import type { Driver, DriverContext, DriverExecuteOptions, DriverHandlers } from "./contract";
 
 import type { DriverName } from ".";
 
@@ -15,7 +16,7 @@ export abstract class BaseDriver<
 
   constructor(protected readonly adapters: WebSentryAdapters) {}
 
-  abstract createContext(url: string): Promise<TContext>;
+  abstract createContext(url: string, options?: DriverExecuteOptions): Promise<TContext>;
   abstract disposeContext(context: TContext): Promise<void>;
 
   isSupported(step: StepOf<DriverOp>): step is StepOf<TOps[number]> {
@@ -27,8 +28,11 @@ export abstract class BaseDriver<
   async executeStep<TOp extends TOps[number]>(
     context: TContext,
     step: StepOf<TOp>,
+    options: DriverExecuteOptions = {},
   ): Promise<StepValueOf<TOp>> {
-    const handler = this.handlers[step.op];
-    return handler(context, step);
+    throwIfAborted(options.signal);
+    const result = await this.handlers[step.op](context, step, options);
+    throwIfAborted(options.signal);
+    return result;
   }
 }

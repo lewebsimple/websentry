@@ -10,8 +10,9 @@ import type { QueueJob, QueueJobResult } from "../adapters/queue/contract";
 import { drivers } from "../drivers";
 import { normalizeError } from "../utils/normalize-error";
 
+import type { Abortable } from "./abort";
 import { ConfigurationError } from "./errors";
-import { Executor } from "./executor";
+import { type ExecuteTaskOptions, Executor } from "./executor";
 import type { RuntimeSource, Source } from "./source";
 import { sourceSchema } from "./source";
 import { SourceRegistry } from "./source-registry";
@@ -27,12 +28,13 @@ export type WebSentryOptions = {
   adapters?: Partial<WebSentryAdapters>;
 };
 
-export type WebSentryRunOptions = {
+export type WebSentryRunOptions = Abortable & {
   concurrency?: number;
   waitMs?: number;
   maxAttempts?: number;
-  signal?: AbortSignal;
 };
+
+export type HandleJobOptions = ExecuteTaskOptions;
 
 export class WebSentry {
   private readonly adapters: WebSentryAdapters;
@@ -93,11 +95,12 @@ export class WebSentry {
     this.sources.setState(name, "running");
   }
 
-  async handleJob(job: QueueJob<Task>): Promise<QueueJobResult> {
+  async handleJob(job: QueueJob<Task>, options: HandleJobOptions = {}): Promise<QueueJobResult> {
     try {
-      await this.executor.executeTask(job.payload);
+      await this.executor.executeTask(job.payload, options);
       return { ok: true };
     } catch (error) {
+      // TODO: Graceful error handling with retries, backoff, and alerting.
       const normalized = normalizeError(error);
       if (!normalized.retry) {
         this.adapters.log.info(`Job ${job.id} not retryable: ${normalized.message}`);
@@ -117,7 +120,7 @@ export class WebSentry {
 
     const concurrency = options.concurrency ?? 1;
     const waitMs = options.waitMs ?? 250;
-    const maxAttemps = options.maxAttempts ?? 5;
+    const maxAttempts = options.maxAttempts ?? 5;
 
     const inFlight = new Set<Promise<void>>();
 
@@ -133,13 +136,13 @@ export class WebSentry {
 
       for (const job of jobs) {
         const currentJobPromise = (async () => {
-          const result = await this.handleJob(job);
+          const result = await this.handleJob(job, { signal: options.signal });
           if (result.ok) {
             await consumer.ack(job.id);
             return;
           }
 
-          const shouldRetry = result.error.retry && job.attempt < maxAttemps;
+          const shouldRetry = result.error.retry && job.attempt < maxAttempts;
           await consumer.nack(job.id, {
             retry: shouldRetry,
             delayMs: result.error.delayMs,

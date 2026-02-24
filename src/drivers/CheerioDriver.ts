@@ -3,7 +3,7 @@ import { load, type CheerioAPI } from "cheerio";
 import type { WebSentryAdapters } from "../core";
 
 import { BaseDriver } from "./BaseDriver";
-import type { DriverContext, DriverHandlers } from "./contract";
+import type { DriverContext, DriverExecuteOptions, DriverHandlers } from "./contract";
 
 // Supported operations for CheerioDriver.
 const supportedOps = ["extract"] as const;
@@ -24,8 +24,8 @@ export class CheerioDriver extends BaseDriver<"cheerio", CheerioOps, CheerioCont
     super(adapters);
   }
 
-  async createContext(url: string): Promise<CheerioContext> {
-    const response = await this.adapters.fetch.fetch({ url });
+  async createContext(url: string, options: DriverExecuteOptions = {}): Promise<CheerioContext> {
+    const response = await this.adapters.fetch.fetch({ url, signal: options.signal });
     const contentType = response.headers["content-type"] ?? "";
     const $ = load(response.body, {
       baseURI: response.url,
@@ -37,7 +37,7 @@ export class CheerioDriver extends BaseDriver<"cheerio", CheerioOps, CheerioCont
   async disposeContext(_context: CheerioContext): Promise<void> {}
 
   protected handlers: DriverHandlers<CheerioOps, CheerioContext> = {
-    extract: async ({ $ }, step) => {
+    extract: async ({ $ }, step, _options) => {
       const value: string[] = [];
       $(step.from.selector).each((_, el) => {
         if (value.length >= step.limit) return false;

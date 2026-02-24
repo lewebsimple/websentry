@@ -1,3 +1,4 @@
+import type { Abortable } from "../core/abort";
 import type { DriverOp, StepOf, StepValueOf } from "../steps";
 
 import type { DriverName } from ".";
@@ -7,10 +8,17 @@ export interface DriverContext<TName extends DriverName = DriverName> {
   readonly driver: TName;
 }
 
-// Driver handlers contract, i.e. mapping supported operations to their execution functions.
+// Driver handlers contract,
 export type DriverHandlers<TOps extends readonly DriverOp[], TContext> = {
-  [TOp in TOps[number]]: (ctx: TContext, step: StepOf<TOp>) => Promise<StepValueOf<TOp>>;
+  [TOp in TOps[number]]: (
+    context: TContext,
+    step: StepOf<TOp>,
+    options: DriverExecuteOptions,
+  ) => Promise<StepValueOf<TOp>>;
 };
+
+// Driver execution contract.
+export type DriverExecuteOptions = Abortable;
 
 // Driver contract.
 export interface Driver<
@@ -21,6 +29,6 @@ export interface Driver<
   readonly name: TName;
   readonly supportedOps: TOps;
 
-  createContext(url: string): Promise<TContext>;
+  createContext(url: string, options?: DriverExecuteOptions): Promise<TContext>;
   disposeContext(context: TContext): Promise<void>;
 }
