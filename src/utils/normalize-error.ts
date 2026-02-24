@@ -1,4 +1,4 @@
-import { WebSentryError } from "../core/errors";
+import { HttpError, WebSentryError } from "../core/errors";
 
 export type NormalizedError = {
   message: string;
@@ -15,6 +15,19 @@ export function normalizeError(error: unknown): NormalizedError {
       delayMs: error.delayMs,
       cause: error,
     };
+  }
+
+  if (error instanceof HttpError) {
+    if (error.status === 408) {
+      return { message: error.message, retry: true };
+    }
+    if (error.status === 429) {
+      return { message: error.message, retry: true, delayMs: error.retryAfterMs };
+    }
+    if (error.status >= 500) {
+      return { message: error.message, retry: true };
+    }
+    return { message: error.message, retry: false };
   }
 
   if (error instanceof Error) {

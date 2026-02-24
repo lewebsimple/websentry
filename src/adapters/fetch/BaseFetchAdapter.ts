@@ -1,3 +1,4 @@
+import { ConfigurationError } from "../../core/errors";
 import { normalizeHeaders } from "../../utils/normalize-headers";
 
 import type { FetchAdapter, FetchAdapterOptions, FetchRequest, FetchResponse } from "./contract";
@@ -18,7 +19,7 @@ export abstract class BaseFetchAdapter implements FetchAdapter {
   protected normalizeRequest(request: FetchRequest): Readonly<FetchRequest> {
     const method = request.method ?? "GET";
     if ((method === "GET" || method === "DELETE") && request.body != null) {
-      throw new Error(`${method} requests cannot have a body`);
+      throw new ConfigurationError(`${method} requests cannot have a body`);
     }
     return {
       ...request,
