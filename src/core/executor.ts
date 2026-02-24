@@ -1,9 +1,20 @@
 import { drivers } from "../drivers";
+import type { ControlOp, StepOf } from "../steps";
 
 import type { Item } from "./item";
+import type { RuntimeSource } from "./source";
 import type { SourceRegistry } from "./source-registry";
 import type { Task } from "./task";
 import type { WebSentryAdapters } from "./websentry";
+
+type ControlHandlersByOp = {
+  [TOp in ControlOp]: (
+    step: StepOf<TOp>,
+    state: ExecutionState,
+    task: Task,
+    source: RuntimeSource,
+  ) => Promise<{ stop?: boolean } | void>;
+};
 
 type ExecutionState = {
   item: Item;
@@ -71,39 +82,10 @@ export class Executor {
           }
 
           // Handle control steps
-          // TODO: Refactor into control step handlers similar to driver handlers for better extensibility.
           case "control": {
-            switch (step.op) {
-              case "delay":
-                await new Promise((resolve) => setTimeout(resolve, step.ms));
-                break;
-
-              case "dispatch":
-                const entity = source.normalize(state.item);
-                await source.process(entity);
-                if (step.stop) {
-                  return;
-                }
-                if (step.reset) {
-                  state.item.data = {};
-                }
-                break;
-
-              case "enqueue":
-                const urls = state.item.data[step.from];
-                if (!Array.isArray(urls)) {
-                  throw new Error(
-                    `Expected an array of URLs in "${step.from}" but got ${typeof urls}`,
-                  );
-                }
-                for (const url of urls) {
-                  this.adapters.taskQueue.producer.enqueue({
-                    source: task.source,
-                    pipeline: step.pipeline,
-                    url,
-                  });
-                }
-                break;
+            const result = await this.executeControlStep(step, state, task, source);
+            if (result?.stop) {
+              return;
             }
             break;
           }
@@ -112,5 +94,44 @@ export class Executor {
     } finally {
       await driver.disposeContext(driverContext);
     }
+  }
+
+  protected controlHandlers = {
+    delay: async (step) => {
+      await new Promise((resolve) => setTimeout(resolve, step.ms));
+    },
+    dispatch: async (step, state, task, source) => {
+      const entity = source.normalize(state.item);
+      await source.process(entity);
+      if (step.reset) {
+        state.item.data = {};
+      }
+      if (step.stop) {
+        return { stop: true };
+      }
+    },
+    enqueue: async (step, state, task) => {
+      const urls = state.item.data[step.from];
+      if (!Array.isArray(urls)) {
+        throw new Error(`Expected an array of URLs in "${step.from}" but got ${typeof urls}`);
+      }
+      for (const url of urls) {
+        await this.adapters.taskQueue.producer.enqueue({
+          source: task.source,
+          pipeline: step.pipeline,
+          url,
+        });
+      }
+    },
+  } satisfies ControlHandlersByOp;
+
+  private async executeControlStep<TOp extends ControlOp>(
+    step: StepOf<TOp>,
+    state: ExecutionState,
+    task: Task,
+    source: RuntimeSource,
+  ): Promise<{ stop?: boolean } | void> {
+    const handler = this.controlHandlers[step.op] as ControlHandlersByOp[TOp];
+    return handler(step, state, task, source);
   }
 }
