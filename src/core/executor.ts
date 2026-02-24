@@ -1,7 +1,7 @@
 import { drivers } from "../drivers";
 
 import type { Item } from "./item";
-import type { RuntimeSource } from "./source";
+import type { SourceRegistry } from "./source-registry";
 import type { Task } from "./task";
 import type { WebSentryAdapters } from "./websentry";
 
@@ -9,16 +9,13 @@ type ExecutionState = {
   item: Item;
 };
 
-// TODO: onBeforeStep, onAfterStep, onError hooks for better observability and error handling.
-export type ExecutorHooks = {};
-
 // TODO: abort signal, timeout, retries, etc.
 export type ExecutorOptions = {};
 
 export class Executor {
   constructor(
     private readonly adapters: WebSentryAdapters,
-    private readonly sources: Map<string, RuntimeSource>,
+    private readonly sources: SourceRegistry,
   ) {}
 
   async executeTask(task: Task): Promise<void> {

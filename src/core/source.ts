@@ -19,10 +19,13 @@ export type Source<TEntity> = z.infer<typeof sourceSchema> & {
   process: (entity: TEntity) => void | Promise<void>;
 };
 
+export type SourceState = "running" | "paused" | "stopped";
+
 export type RuntimeSource = {
   name: string;
+  state: SourceState;
   pipelines: Record<string, Pipeline>;
-  tasks: Task[];
   normalize: (item: Item) => unknown;
   process: (entity: unknown) => void | Promise<void>;
+  generateSeeds: () => Task[];
 };
