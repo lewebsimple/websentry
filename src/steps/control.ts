@@ -12,7 +12,14 @@ const delay = defineStep(
 );
 
 // Dispatch item from collected values.
-const dispatch = defineStep("control", "dispatch", z.object({}));
+const dispatch = defineStep(
+  "control",
+  "dispatch",
+  z.object({
+    stop: z.boolean().optional().default(true),
+    reset: z.boolean().optional().default(true),
+  }),
+);
 
 // Enqueue new items to a specified pipeline.
 const enqueue = defineStep(

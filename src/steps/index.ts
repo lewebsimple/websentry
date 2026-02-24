@@ -13,8 +13,8 @@ export type DriverStepDefinition = Extract<StepDefinition, { kind: "driver" }>;
 
 // Discriminated union of all step schemas.
 export const stepSchema = z.discriminatedUnion(
-  "op",
-  // Cast array as tuple to preserve literal types for "op" properties in the union.
+  "kind",
+  // Cast array as tuple to preserve literal types for properties in the union.
   stepDefinitions.map(({ stepSchema }) => stepSchema) as unknown as [
     (typeof stepDefinitions)[number]["stepSchema"],
     ...(typeof stepDefinitions)[number]["stepSchema"][],

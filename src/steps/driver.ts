@@ -28,17 +28,5 @@ const extract = defineStep(
   z.array(z.string()),
 );
 
-const extractJsonLd = defineStep(
-  "driver",
-  "extractJsonLd",
-  z.object({
-    type: z.string().optional(),
-    property: z.string().optional(),
-    selector: z.string().default('script[type="application/ld+json"]'),
-    limit: z.number().int().positive().optional().default(1),
-  }),
-  z.array(z.unknown()),
-);
-
 // Collection of driver step definitions.
-export const driverSteps = [extract, extractJsonLd] as const;
+export const driverSteps = [extract] as const;

@@ -4,35 +4,69 @@ import * as z from "zod";
 const stepKinds = ["control", "driver"] as const;
 export type StepKind = (typeof stepKinds)[number];
 
-// Step definition contract for validation and type inference.
+type BaseParamsShape = z.ZodRawShape;
+
 type StepDefinition<
   TKind extends StepKind,
   TOp extends string,
-  TParamsShape extends z.ZodRawShape,
-  TValueSchema extends z.ZodTypeAny | undefined = undefined,
+  TStepSchema extends z.ZodTypeAny,
+  TValueSchema extends z.ZodTypeAny | undefined,
 > = {
   kind: TKind;
   op: TOp;
-  stepSchema: z.ZodObject<{ op: z.ZodLiteral<TOp> } & TParamsShape>;
+  stepSchema: TStepSchema;
   valueSchema?: TValueSchema;
 };
 
-// Factory function to create step definitions with consistent structure.
+// Step definition factory for steps that don't produce a value.
 export function defineStep<
   TKind extends StepKind,
   TOp extends string,
-  TParamsShape extends z.ZodRawShape,
-  TValueSchema extends z.ZodTypeAny | undefined = undefined,
+  TParamsShape extends BaseParamsShape,
 >(
   kind: TKind,
   op: TOp,
   paramsSchema: z.ZodObject<TParamsShape>,
-  valueSchema?: TValueSchema,
-): StepDefinition<TKind, TOp, TParamsShape, TValueSchema> {
+): StepDefinition<
+  TKind,
+  TOp,
+  z.ZodObject<TParamsShape & { op: z.ZodLiteral<TOp>; kind: z.ZodLiteral<TKind> }>,
+  undefined
+>;
+
+// Step definition factory for steps that produce a value.
+export function defineStep<
+  TKind extends StepKind,
+  TOp extends string,
+  TParamsShape extends BaseParamsShape & { to: z.ZodString },
+  TValueSchema extends z.ZodTypeAny,
+>(
+  kind: TKind,
+  op: TOp,
+  paramsSchema: z.ZodObject<TParamsShape>,
+  valueSchema: TValueSchema,
+): StepDefinition<
+  TKind,
+  TOp,
+  z.ZodObject<TParamsShape & { op: z.ZodLiteral<TOp>; kind: z.ZodLiteral<TKind> }>,
+  TValueSchema
+>;
+
+// Step definition factory implementation.
+export function defineStep<
+  TKind extends StepKind,
+  TOp extends string,
+  TParamsShape extends BaseParamsShape,
+  TValueSchema extends z.ZodTypeAny | undefined,
+>(kind: TKind, op: TOp, paramsSchema: z.ZodObject<TParamsShape>, valueSchema?: TValueSchema) {
+  const stepSchema = paramsSchema.extend({
+    op: z.literal(op),
+    kind: z.literal(kind),
+  });
   return {
     kind,
     op,
-    stepSchema: z.object({ op: z.literal(op) }).extend(paramsSchema.shape),
+    stepSchema,
     valueSchema,
   };
 }

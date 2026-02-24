@@ -18,13 +18,13 @@ export abstract class BaseDriver<
   abstract createContext(url: string): Promise<TContext>;
   abstract disposeContext(context: TContext): Promise<void>;
 
-  protected isSupported(op: string): op is TOps[number] {
-    return (this.supportedOps as readonly string[]).includes(op);
+  isSupported(step: StepOf<DriverOp>): step is StepOf<TOps[number]> {
+    return this.supportedOps.includes(step.op);
   }
 
   protected abstract handlers: DriverHandlers<TOps, TContext>;
 
-  async execute<TOp extends TOps[number]>(
+  async executeStep<TOp extends TOps[number]>(
     context: TContext,
     step: StepOf<TOp>,
   ): Promise<StepValueOf<TOp>> {

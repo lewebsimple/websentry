@@ -1,5 +1,6 @@
-import type { DriverName } from "../core/driver-name";
 import type { DriverOp, StepOf, StepValueOf } from "../steps";
+
+import type { DriverName } from ".";
 
 // Driver context contract.
 export interface DriverContext<TName extends DriverName = DriverName> {
