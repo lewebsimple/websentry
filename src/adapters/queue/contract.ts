@@ -19,3 +19,7 @@ export interface QueueAdapter<TPayload = unknown> {
   readonly producer: QueueProducer<TPayload>;
   readonly consumer?: QueueConsumer<TPayload>;
 }
+
+export type QueueJobResult =
+  | { ok: true }
+  | { ok: false; retry: boolean; delayMs?: number; error?: unknown };

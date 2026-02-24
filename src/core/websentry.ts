@@ -6,8 +6,10 @@ import {
   type LogAdapter,
   type QueueAdapter,
 } from "../adapters";
+import type { QueueJob, QueueJobResult } from "../adapters/queue/contract";
 import { drivers } from "../drivers";
 
+import { Executor } from "./executor";
 import type { RuntimeSource, Source } from "./source";
 import { sourceSchema } from "./source";
 import { SourceRegistry } from "./source-registry";
@@ -23,15 +25,21 @@ export type WebSentryOptions = {
   adapters?: Partial<WebSentryAdapters>;
 };
 
+export type WebSentryRunOptions = {
+  concurrency?: number;
+  waitMs?: number;
+  signal?: AbortSignal;
+};
+
 export class WebSentry {
   private readonly adapters: WebSentryAdapters;
-
   static readonly drivers = drivers;
-
   private readonly sources = new SourceRegistry();
+  private readonly executor: Executor;
 
   constructor(options: WebSentryOptions) {
     this.adapters = this.resolveAdapters(options.adapters);
+    this.executor = new Executor(this.adapters, this.sources);
   }
 
   private resolveAdapters(adapters?: Partial<WebSentryAdapters>): WebSentryAdapters {
@@ -82,5 +90,43 @@ export class WebSentry {
 
   stopSource(name: string) {
     this.sources.setState(name, "stopped");
+  }
+
+  async handleJob(job: QueueJob<Task>): Promise<QueueJobResult> {
+    try {
+      await this.executor.executeTask(job.payload);
+      return { ok: true };
+    } catch (error) {
+      // TODO: Implement retry logic based on error type
+      return { ok: false, retry: false, delayMs: 1000, error };
+    }
+  }
+
+  async run(options: WebSentryRunOptions = {}) {
+    const consumer = this.adapters.taskQueue.consumer;
+    if (!consumer) throw new Error("Queue adapter has no consumer; cannot run in pull mode");
+
+    const concurrency = options.concurrency ?? 1;
+    const waitMs = options.waitMs ?? 250;
+
+    const inFlight = new Set<Promise<void>>();
+
+    while (!options.signal?.aborted) {
+      if (inFlight.size >= concurrency) {
+        await Promise.race(inFlight);
+        continue;
+      }
+      const jobs = await consumer.pull({ max: concurrency - inFlight.size, waitMs });
+      for (const job of jobs) {
+        const currentJobPromise = (async () => {
+          const result = await this.handleJob(job);
+          if (result.ok) await consumer.ack(job.id);
+          else await consumer.nack(job.id, { retry: result.retry, delayMs: result.delayMs });
+        })().finally(() => inFlight.delete(currentJobPromise));
+        inFlight.add(currentJobPromise);
+      }
+    }
+
+    await Promise.all(inFlight);
   }
 }
