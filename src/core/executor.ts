@@ -1,6 +1,9 @@
+import * as z from "zod";
+
 import { drivers } from "../drivers";
 import type { ControlOp, StepOf } from "../steps";
 
+import { ConfigurationError, NonRetryableError, UnsupportedOperationError } from "./errors";
 import type { Item } from "./item";
 import type { RuntimeSource } from "./source";
 import type { SourceRegistry } from "./source-registry";
@@ -33,7 +36,7 @@ export class Executor {
     // Resolve source from the task.
     const source = this.sources.get(task.source);
     if (!source) {
-      throw new Error(`Unknown source "${task.source}"`);
+      throw new ConfigurationError(`Unknown source "${task.source}"`);
     }
     if (source.state !== "running") {
       return;
@@ -42,13 +45,15 @@ export class Executor {
     // Resolve pipeline from the source configuration.
     const pipeline = source.pipelines[task.pipeline];
     if (!pipeline) {
-      throw new Error(`Unknown pipeline "${task.pipeline}" for source "${task.source}"`);
+      throw new ConfigurationError(
+        `Unknown pipeline "${task.pipeline}" for source "${task.source}"`,
+      );
     }
 
     // Resolve driver from the pipeline configuration.
     const DriverClass = drivers[pipeline.driver];
     if (!DriverClass) {
-      throw new Error(`Unknown driver "${pipeline.driver}"`);
+      throw new ConfigurationError(`Unknown driver "${pipeline.driver}"`);
     }
 
     // Create driver context for the execution.
@@ -73,8 +78,8 @@ export class Executor {
           case "driver": {
             if (!driver.isSupported(step)) {
               const op = (<{ op: string }>step).op || "unknown";
-              throw new Error(
-                `Driver "${driver.name}" does not support operation "${op}" required by step in pipeline "${pipeline.driver}"`,
+              throw new UnsupportedOperationError(
+                `Driver "${driver.name}" does not support operation "${op}" in source "${source.name}"`,
               );
             }
             const result = await driver.executeStep(driverContext, step);
@@ -115,12 +120,18 @@ export class Executor {
     },
     enqueue: async (step, state, task) => {
       const source = this.sources.get(task.source);
-      if (!source || source.state !== "running") return;
-
-      const urls = state.item.data[step.from];
-      if (!Array.isArray(urls)) {
-        throw new Error(`Expected an array of URLs in "${step.from}" but got ${typeof urls}`);
+      if (source?.state !== "running") {
+        throw new NonRetryableError(`Cannot enqueue task: source "${task.source}" is not running`);
       }
+
+      const urlArraySchema = z.array(z.url());
+      const { success, data: urls } = urlArraySchema.safeParse(state.item.data[step.from]);
+      if (!success) {
+        throw new NonRetryableError(
+          `Expected an array of URLs in "${step.from}" but got ${typeof urls}`,
+        );
+      }
+
       for (const url of urls) {
         await this.adapters.taskQueue.producer.enqueue({
           source: task.source,

@@ -22,5 +22,5 @@ export class RetryableError extends WebSentryError {
 }
 
 export class ConfigurationError extends NonRetryableError {}
-export class ValidationError extends NonRetryableError {}
 export class UnsupportedOperationError extends NonRetryableError {}
+export class ValidationError extends NonRetryableError {}

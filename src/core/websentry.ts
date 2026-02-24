@@ -10,6 +10,7 @@ import type { QueueJob, QueueJobResult } from "../adapters/queue/contract";
 import { drivers } from "../drivers";
 import { normalizeError } from "../utils/normalize-error";
 
+import { ConfigurationError } from "./errors";
 import { Executor } from "./executor";
 import type { RuntimeSource, Source } from "./source";
 import { sourceSchema } from "./source";
@@ -57,7 +58,9 @@ export class WebSentry {
     const { seeds, pipelines } = sourceSchema.parse(definition);
     for (const seed of seeds) {
       if (!(seed.pipeline in pipelines)) {
-        throw new Error(`Seed references unknown pipeline "${seed.pipeline}" in source "${name}"`);
+        throw new ConfigurationError(
+          `Seed references unknown pipeline "${seed.pipeline}" in source "${name}"`,
+        );
       }
     }
     this.sources.register({
@@ -109,7 +112,8 @@ export class WebSentry {
 
   async run(options: WebSentryRunOptions = {}) {
     const consumer = this.adapters.taskQueue.consumer;
-    if (!consumer) throw new Error("Queue adapter has no consumer; cannot run in pull mode");
+    if (!consumer)
+      throw new ConfigurationError("Queue adapter has no consumer; cannot run in pull mode");
 
     const concurrency = options.concurrency ?? 1;
     const waitMs = options.waitMs ?? 250;
