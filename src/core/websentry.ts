@@ -8,6 +8,7 @@ import {
 } from "../adapters";
 import type { QueueJob, QueueJobResult } from "../adapters/queue/contract";
 import { drivers } from "../drivers";
+import { normalizeError } from "../utils/normalize-error";
 
 import { Executor } from "./executor";
 import type { RuntimeSource, Source } from "./source";
@@ -28,6 +29,7 @@ export type WebSentryOptions = {
 export type WebSentryRunOptions = {
   concurrency?: number;
   waitMs?: number;
+  maxAttempts?: number;
   signal?: AbortSignal;
 };
 
@@ -93,8 +95,15 @@ export class WebSentry {
       await this.executor.executeTask(job.payload);
       return { ok: true };
     } catch (error) {
-      // TODO: Implement retry logic based on error type
-      return { ok: false, retry: false, delayMs: 1000, error };
+      const normalized = normalizeError(error);
+      if (!normalized.retry) {
+        this.adapters.log.info(`Job ${job.id} not retryable: ${normalized.message}`);
+      } else {
+        this.adapters.log.warn(
+          `Job ${job.id} failed (attempt ${job.attempt}): ${normalized.message}`,
+        );
+      }
+      return { ok: false, error: normalized };
     }
   }
 
@@ -104,6 +113,7 @@ export class WebSentry {
 
     const concurrency = options.concurrency ?? 1;
     const waitMs = options.waitMs ?? 250;
+    const maxAttemps = options.maxAttempts ?? 5;
 
     const inFlight = new Set<Promise<void>>();
 
@@ -112,13 +122,30 @@ export class WebSentry {
         await Promise.race(inFlight);
         continue;
       }
-      const jobs = await consumer.pull({ max: concurrency - inFlight.size, waitMs });
+
+      const capacity = concurrency - inFlight.size;
+      const jobs = await consumer.pull({ max: capacity, waitMs });
+      if (jobs.length === 0) continue;
+
       for (const job of jobs) {
         const currentJobPromise = (async () => {
           const result = await this.handleJob(job);
-          if (result.ok) await consumer.ack(job.id);
-          else await consumer.nack(job.id, { retry: result.retry, delayMs: result.delayMs });
-        })().finally(() => inFlight.delete(currentJobPromise));
+          if (result.ok) {
+            await consumer.ack(job.id);
+            return;
+          }
+
+          const shouldRetry = result.error.retry && job.attempt < maxAttemps;
+          await consumer.nack(job.id, {
+            retry: shouldRetry,
+            delayMs: result.error.delayMs,
+          });
+          if (!shouldRetry) {
+            this.adapters.log.error?.(`Job ${job.id} permanently failed: ${result.error.message}`);
+          }
+        })().finally(() => {
+          inFlight.delete(currentJobPromise);
+        });
         inFlight.add(currentJobPromise);
       }
     }

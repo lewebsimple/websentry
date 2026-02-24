@@ -1,3 +1,5 @@
+import type { NormalizedError } from "../../utils/normalize-error";
+
 export interface QueueJob<TPayload = unknown> {
   id: string;
   payload: TPayload;
@@ -20,6 +22,4 @@ export interface QueueAdapter<TPayload = unknown> {
   readonly consumer?: QueueConsumer<TPayload>;
 }
 
-export type QueueJobResult =
-  | { ok: true }
-  | { ok: false; retry: boolean; delayMs?: number; error?: unknown };
+export type QueueJobResult = { ok: true } | { ok: false; error: NormalizedError };
