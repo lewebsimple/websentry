@@ -1,7 +1,9 @@
 import { load, type CheerioAPI } from "cheerio";
+
+import type { WebSentryAdapters } from "../core";
+
 import { BaseDriver } from "./BaseDriver";
-import { WebSentryAdapters } from "../core";
-import { DriverContext, DriverHandlers } from "./contract";
+import type { DriverContext, DriverHandlers } from "./contract";
 
 // Supported operations for CheerioDriver.
 const supportedOps = ["extract"] as const;

@@ -1,7 +1,10 @@
 import * as z from "zod";
-import { Item } from "./item";
-import { Pipeline, pipelineSchema } from "./pipeline";
-import { Task, taskSchema } from "./task";
+
+import type { Item } from "./item";
+import type { Pipeline } from "./pipeline";
+import { pipelineSchema } from "./pipeline";
+import type { Task } from "./task";
+import { taskSchema } from "./task";
 
 export const seedSchema = taskSchema.omit({ source: true });
 export type Seed = z.infer<typeof seedSchema>;

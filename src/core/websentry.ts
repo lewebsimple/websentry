@@ -7,8 +7,10 @@ import {
   type QueueAdapter,
 } from "../adapters";
 import { drivers } from "../drivers";
-import { RuntimeSource, Source, sourceSchema } from "./source";
-import { Task } from "./task";
+
+import type { RuntimeSource, Source } from "./source";
+import { sourceSchema } from "./source";
+import type { Task } from "./task";
 
 export type WebSentryAdapters = {
   fetch: FetchAdapter;

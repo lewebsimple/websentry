@@ -1,5 +1,6 @@
 import { BaseLogAdapter } from "./BaseLogAdapter";
-import { LOG_LEVEL, LogLevelValue } from "./contract";
+import type { LogLevelValue } from "./contract";
+import { LOG_LEVEL } from "./contract";
 
 export class ConsoleLogAdapter extends BaseLogAdapter {
   protected write(level: LogLevelValue, message: string, ...meta: unknown[]): void {

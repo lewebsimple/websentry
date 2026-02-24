@@ -1,5 +1,5 @@
 import { BaseQueueAdapter } from "./BaseQueueAdapter";
-import { QueueConsumer, QueueJob, QueueProducer } from "./contract";
+import type { QueueConsumer, QueueJob, QueueProducer } from "./contract";
 
 export class InMemoryQueueAdapter<TPayload> extends BaseQueueAdapter<TPayload> {
   private readonly queue: QueueJob<TPayload>[] = [];

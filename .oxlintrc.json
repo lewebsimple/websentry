@@ -3,5 +3,13 @@
   "env": {
     "node": true
   },
-  "rules": {}
+  "rules": {
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ]
+  }
 }

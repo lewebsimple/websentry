@@ -1,4 +1,5 @@
 import { normalizeHeaders } from "../../utils/normalize-headers";
+
 import type { FetchAdapter, FetchAdapterOptions, FetchRequest, FetchResponse } from "./contract";
 
 export abstract class BaseFetchAdapter implements FetchAdapter {

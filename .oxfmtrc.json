@@ -2,7 +2,7 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "sortImports": {
     "groups": [
-      ["side-effect"],
+      ["side_effect"],
       ["builtin"],
       ["external", "type-external"],
       ["internal", "type-internal"],

@@ -1,6 +1,7 @@
 import * as z from "zod";
-import { stepSchema } from "../steps";
+
 import { driverNameSchema } from "../drivers";
+import { stepSchema } from "../steps";
 
 export const pipelineSchema = z.object({
   driver: driverNameSchema,

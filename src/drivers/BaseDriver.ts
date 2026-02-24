@@ -1,7 +1,9 @@
-import { DriverOp, StepOf, StepValueOf } from "../steps";
-import { WebSentryAdapters } from "../core";
-import { DriverName } from "../core/driver-name";
-import { Driver, DriverContext, DriverHandlers } from "./contract";
+import type { WebSentryAdapters } from "../core";
+import type { DriverOp, StepOf, StepValueOf } from "../steps";
+
+import type { Driver, DriverContext, DriverHandlers } from "./contract";
+
+import type { DriverName } from ".";
 
 export abstract class BaseDriver<
   TName extends DriverName,

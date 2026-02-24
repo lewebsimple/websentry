@@ -1,10 +1,5 @@
-import {
-  DEFAULT_LOG_LEVEL,
-  LOG_LEVEL,
-  LogAdapter,
-  LogAdapterOptions,
-  LogLevelValue,
-} from "./contract";
+import type { LogAdapter, LogAdapterOptions, LogLevelValue } from "./contract";
+import { DEFAULT_LOG_LEVEL, LOG_LEVEL } from "./contract";
 
 export abstract class BaseLogAdapter implements LogAdapter {
   protected readonly level: LogLevelValue;

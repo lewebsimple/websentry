@@ -1,4 +1,4 @@
-import { QueueAdapter, QueueConsumer, QueueJob, QueueProducer } from "./contract";
+import type { QueueAdapter, QueueConsumer, QueueJob, QueueProducer } from "./contract";
 
 export abstract class BaseQueueAdapter<TPayload> implements QueueAdapter<TPayload> {
   abstract readonly producer: QueueProducer<TPayload>;
